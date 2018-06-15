@@ -40,21 +40,47 @@
     remote_src: True
   when: init_cluster
 
+# CALICO
+
+- name: copy rbac-kdd.yaml
+  copy:
+    src: rbac-kdd.yaml
+    dest: ~/rbac-kdd.yaml
+    owner: "{{kubernetes.user}}"
+    group: "{{kubernetes.user}}"
+    mode: 0644
+  when: init_cluster
+
+- name: setup rbac-kdd
+  becom_user: "{{kubernetes.user}}"
+  shell: kubectl apply -f ~/rbac-kdd.yaml
+
+- name: copy calico.yml
+  copy:
+    src: calico.yml
+    dest: ~/calico.yml
+    owner: "{{kubernetes.user}}"
+    group: "{{kubernetes.user}}"
+    mode: 0644
+  when: init_cluster
+
+- name: setup calico
+  becom_user: "{{kubernetes.user}}"
+  shell: kubectl apply -f ~/calico.yml
+
 #- name: setup calico pod network
 #  become_user: "{{kubernetes.user}}"
 #  shell: |
 #    kubectl apply -f \
 #      https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
 
-- name: setup dashboard
-  become_user: "{{kubernetes.user}}"
-  shell: |
-    kubectl apply -f \
-      https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+# DASHBOARD UI
 
-#- name: setup master as an ordinary node
+#- name: setup dashboard
 #  become_user: "{{kubernetes.user}}"
-#  shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+#  shell: |
+#    kubectl apply -f \
+#      https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 
 - name: copy dashboard service configuration
   become_user: "{{kubernetes.user}}"
@@ -66,3 +92,9 @@
   become_user: "{{kubernetes.user}}"
   shell: |
     kubectl apply -f ~/dashboard-nodeport-service.yml
+
+# REMOVE MASTER TAINT
+
+#- name: setup master as an ordinary node
+#  become_user: "{{kubernetes.user}}"
+#  shell: kubectl taint nodes --all node-role.kubernetes.io/master-
