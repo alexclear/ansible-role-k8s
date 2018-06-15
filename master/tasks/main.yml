@@ -52,7 +52,7 @@
   when: init_cluster
 
 - name: setup rbac-kdd
-  becom_user: "{{kubernetes.user}}"
+  become_user: "{{kubernetes.user}}"
   shell: kubectl apply -f ~/rbac-kdd.yaml
 
 - name: copy calico.yml
@@ -65,7 +65,7 @@
   when: init_cluster
 
 - name: setup calico
-  becom_user: "{{kubernetes.user}}"
+  become_user: "{{kubernetes.user}}"
   shell: kubectl apply -f ~/calico.yml
 
 #- name: setup calico pod network
