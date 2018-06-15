@@ -1,0 +1,18 @@
+galaxy_info:
+  author: freehck
+  description: install k8s 1.10
+  license: GPLv3
+
+  min_ansible_version: 2.5
+
+  platforms:
+  - name: Ubuntu
+    versions:
+      - all
+  - name: Debian
+    versions:
+      - all
+
+  galaxy_tags: [ system, k8s, kubernetes ]
+
+dependencies: []

@@ -1,0 +1,44 @@
+---
+
+- name: install apt transports
+  apt:
+    name:
+      - apt-transport-https
+      - curl
+    state: present
+    update_cache: yes
+
+- name: add kubernetes repo key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: add kubernetes repo for xenial
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes
+
+- name: install kubelet, kubeadm, kubectl
+  apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+    update_cache: yes
+
+- name: remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: create user {{kubernetes.user}}
+  user:
+    state: present
+    name: "{{kubernetes.user}}"

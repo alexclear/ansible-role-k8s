@@ -1,0 +1,68 @@
+---
+
+- name: reset kubernetes cluster
+  shell: "kubeadm reset"
+  register: reset_cluster
+
+- name: init kubernetes cluster
+  when: reset_cluster is defined and reset_cluster is succeeded
+  shell: |
+    kubeadm init --pod-network-cidr {{ kubernetes.pod_network_cidr }} \
+                 --token {{ kubernetes.token }} \
+                 --apiserver-advertise-address {{ kubernetes.master_ip }} \
+                 --apiserver-cert-extra-sans {{ kubernetes.master_ip }}
+  register: init_cluster
+
+- name: fail if user {{kubernetes.user}} not exist
+  getent:
+    database: passwd
+    key: "{{kubernetes.user}}"
+
+- name: create kubernetes config directory for user {{kubernetes.user}}
+  become_user: "{{kubernetes.user}}"
+  file:
+    path: ~/.kube/
+    state: directory
+
+- name: permissions for admin.conf
+  file:
+    path: "{{kubernetes.admin_conf}}"
+    mode: 0775
+
+- name: copy admin.conf to home directory
+  become_user: "{{kubernetes.user}}"
+  copy:
+    src: "{{kubernetes.admin_conf}}"
+    dest: "~/.kube/config"
+    owner: "{{kubernetes.user}}"
+    group: "{{kubernetes.user}}"
+    mode: 0755
+    remote_src: True
+  when: init_cluster
+
+#- name: setup calico pod network
+#  become_user: "{{kubernetes.user}}"
+#  shell: |
+#    kubectl apply -f \
+#      https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
+
+- name: setup dashboard
+  become_user: "{{kubernetes.user}}"
+  shell: |
+    kubectl apply -f \
+      https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+
+#- name: setup master as an ordinary node
+#  become_user: "{{kubernetes.user}}"
+#  shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+
+- name: copy dashboard service configuration
+  become_user: "{{kubernetes.user}}"
+  copy:
+    src: dashboard-nodeport-service.yml
+    dest: ~/dashboard-nodeport-service.yml
+
+- name: setup dashboard service configuration
+  become_user: "{{kubernetes.user}}"
+  shell: |
+    kubectl apply -f ~/dashboard-nodeport-service.yml
