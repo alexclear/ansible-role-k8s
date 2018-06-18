@@ -45,7 +45,7 @@
 - name: copy rbac-kdd.yaml
   copy:
     src: rbac-kdd.yaml
-    dest: ~/rbac-kdd.yaml
+    dest: /home/kuber/rbac-kdd.yaml
     owner: "{{kubernetes.user}}"
     group: "{{kubernetes.user}}"
     mode: 0644
@@ -58,7 +58,7 @@
 - name: copy calico.yml
   copy:
     src: calico.yml
-    dest: ~/calico.yml
+    dest: /home/kuber/calico.yml
     owner: "{{kubernetes.user}}"
     group: "{{kubernetes.user}}"
     mode: 0644
