@@ -247,12 +247,12 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             # Auto-detect the BGP IP address.
-            #- name: IP
-            #  value: "autodetect"
+            - name: IP
+              value: "10.73.70.8"
             - name: FELIX_HEALTHENABLED
               value: "true"
-            - name: IP_AUTODETECTION_METHOD
-              value: "interface=enp0s8"
+            #- name: IP_AUTODETECTION_METHOD
+            #  value: "interface=enp0s8"
           securityContext:
             privileged: true
           resources:
