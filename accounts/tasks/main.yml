@@ -1,0 +1,68 @@
+
+
+- name: copy script to get user token
+  become_user: "{{kubernetes.user}}"
+  copy:
+    content: |
+      #!/bin/bash
+      SECRET=$(kubectl -n kube-system get secret | grep $1 | awk '{print $1}')
+      if [ -z "$SECRET" ]; then
+        echo "Not exist: $1"
+        exit 1
+      fi
+      kubectl -n kube-system describe secret $SECRET | awk '/^token:/ {print $2}'
+    dest: ~/get-token.sh
+    mode: 0755
+  
+- name: create service user account descriptions
+  become_user: "{{kubernetes.user}}"
+  copy:
+    content: |
+      {% for user in kubernetes.service_accounts %}
+      ---
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: {{user}}
+        namespace: kube-system
+
+      {% endfor %}
+    dest: ~/k8s-users.yml
+    mode: 0644
+  
+- name: create service user account role binding descriptions
+  become_user: "{{kubernetes.user}}"
+  copy:
+    content: |
+      {% for user in kubernetes.service_accounts %}
+      ---
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      kind: ClusterRoleBinding
+      metadata:
+        name: {{user}}
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+      - kind: ServiceAccount
+        name: {{user}}
+        namespace: kube-system
+      
+      {% endfor %}
+    dest: ~/k8s-role-bindings.yml
+    mode: 0644
+
+- name: create new users
+  become_user: "{{kubernetes.user}}"
+  shell: |
+    kubectl create -f ~/k8s-users.yml
+  ignore_errors: yes
+
+- name: create new role bindings
+  become_user: "{{kubernetes.user}}"
+  shell: |
+    kubectl create -f ~/k8s-role-bindings.yml
+  ignore_errors: yes
+
+
