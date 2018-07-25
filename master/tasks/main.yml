@@ -56,7 +56,7 @@
   shell: kubectl apply -f ~/rbac-kdd.yaml
 
 - name: copy calico.yml
-  copy:
+  template:
     src: calico.yml
     dest: /home/kuber/calico.yml
     owner: "{{kubernetes.user}}"
