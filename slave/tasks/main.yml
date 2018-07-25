@@ -1,11 +1,12 @@
 ---
 
 - name: Reset Kubernetes component
+  when: k8s_reset_cluster
   shell: "kubeadm reset"
   register: reset_cluster
 
 - name: Join to Kubernetes cluster
-  when: reset_cluster is succeeded
+  when: (reset_cluster is succeeded and k8s_reset_cluster) or not k8s_reset_cluster
   shell: |
     kubeadm join --skip-preflight-checks \
                  --token {{ kubernetes.token }} \
