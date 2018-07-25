@@ -1,0 +1,2 @@
+k8s_interface: enp0s8
+k8s_reset_cluster: true

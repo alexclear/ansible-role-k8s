@@ -1,11 +1,12 @@
 ---
 
 - name: reset kubernetes cluster
+  when: k8s_reset_cluster
   shell: "kubeadm reset"
   register: reset_cluster
 
 - name: init kubernetes cluster
-  when: reset_cluster is defined and reset_cluster is succeeded
+  when: k8s_reset_cluster and reset_cluster is defined and reset_cluster is succeeded
   shell: |
     kubeadm init --pod-network-cidr {{ kubernetes.pod_network_cidr }} \
                  --token {{ kubernetes.token }} \
