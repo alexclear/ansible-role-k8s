@@ -252,7 +252,7 @@ spec:
             - name: FELIX_HEALTHENABLED
               value: "true"
             - name: IP_AUTODETECTION_METHOD
-              value: "interface={{ k8s_interface }}"
+              value: "{{ k8s_ip_autodetection_method }}"
           securityContext:
             privileged: true
           resources:
