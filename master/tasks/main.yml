@@ -5,8 +5,13 @@
   shell: "kubeadm reset"
   register: reset_cluster
 
+- name: kubeadm | Check if kubeadm has already run
+  stat:
+    path: "/etc/kubernetes/pki/ca.key"
+  register: kubeadm_ca
+
 - name: init kubernetes cluster
-  when: k8s_reset_cluster and reset_cluster is defined and reset_cluster is succeeded
+  when: not kubeadm_ca.stat.exists
   shell: |
     kubeadm init --pod-network-cidr {{ kubernetes.pod_network_cidr }} \
                  --token {{ kubernetes.token }} \
