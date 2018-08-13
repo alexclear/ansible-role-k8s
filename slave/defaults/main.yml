@@ -1,1 +1,1 @@
-k8s_reset_cluster: true
+k8s_reset_cluster: false
