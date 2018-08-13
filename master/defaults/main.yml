@@ -1,3 +1,3 @@
 k8s_interface: enp0s8
-k8s_reset_cluster: true
+k8s_reset_cluster: false
 k8s_ip_autodetection_method: "interface={{ k8s_interface }}"
