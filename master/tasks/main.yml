@@ -104,3 +104,9 @@
 #- name: setup master as an ordinary node
 #  become_user: "{{kubernetes.user}}"
 #  shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+
+- name: create /root/.kube
+  file: state=directory dest=/root/.kube
+
+- name: create a link to K8s config
+  file: state=link src=/etc/kubernetes/admin.conf dest=/root/.kube/config
